@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form id="form">
+        <input type="text" id="input">
+        <button>확인</button>
+    </form>
+    <div id="logs"></div>
+    <script>
+        const $input = document.querySelector('#input');
+        const $form = document.querySelector('#form');
+        const $logs = document.querySelector('#logs');
+
+        let out = 0;
+
+        // map 반복문
+        const numbers = Array(9).fill().map((el, idx) => {
+            return idx + 1;
+        });
+        // for(let i = 0; i < 9; i++) {
+        //     numbers.push(i + 1);
+        // }
+
+        const answer = [];
+        for(let i = 0; i < 4; i++) {
+            const index = Math.floor(Math.random() * numbers.length);    // 0~8 정수
+            answer.push(numbers[index]);
+            numbers.splice(index, 1);
+        }
+        console.log(answer);
+
+        const tries = [];
+        // input 값 검사하는 코드
+        function checkInput(input) {
+            if(input.length !== 4) {                // 길이 검사
+                return alert("4자리 숫자를 입력해 주세요.");
+            }
+            if(new Set(input).size !== 4) {         // 중복된 숫자가 있는가
+                return alert("중복되지 않게 입력해 주세요.");
+                
+            }
+            if(tries.includes(input)) {             // 이미 시도한 값은 아닌가
+                return alert("이미 시도한 값입니다.");
+            }
+            return true;
+        }
+
+        $form.addEventListener('submit', (e) => {
+            e.preventDefault();     // 기본 동작 막기
+            const value = $input.value;
+            $input.value = '';
+            if(!checkInput(value)) {
+                return;
+            }
+
+            // input값 문제 없음
+            // join('')함수 
+            // [3, 1, 4, 6] -> '3146' 
+            // split('')
+            // '3146' -> [3, 1, 4, 6]
+            if(answer.join('') === value) {
+                $logs.textContent = '홈런!';
+                return;
+            }
+
+            // 몇 스트라이크 몇 볼인지 검사
+            let strike = 0;
+            let ball = 0;
+            
+            //forEach 반복문
+            answer.forEach((number, i) => {
+                const index = value.indexOf(number);
+                if(index > -1) {
+                    if(index === i) {   // 자릿수도 같음
+                        strike++;
+                    } else {            // 숫자만 같음
+                        ball++;
+                    }
+                } 
+            });
+
+            // for(let i = 0; i < answer.length; i++) {
+            //     const index = value.indexOf(answer[i]);
+            //     if(index > -1) {
+            //         if(index === i) {   // 자릿수도 같음
+            //             strike++;
+            //         } else {            // 숫자만 같음
+            //             ball++;
+            //         }
+            //     } 
+            // }
+
+            if(strike === 0 && ball === 0) {
+                out++;
+                $logs.append(`${value}: ${out} 아웃!`, document.createElement('br'));
+            } else {
+                $logs.append(`${value}: ${strike} 스트라이크 ${ball} 볼`, document.createElement('br'));
+            }
+            tries.push(value);
+
+            if(tries.length > 9 || out >= 3) {
+                // 요즘엔 appendChild 사용 안함.
+                $logs.appendChild(document.createTextNode(`패배! 정답은 ${answer.join('')}`));
+                return;
+            }
+            
+        });
+
+
+    </script>
+    
+</body>
+</html>
